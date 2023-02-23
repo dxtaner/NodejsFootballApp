@@ -17,4 +17,8 @@ router.put('/footballers/:id', footballerController.updateFootballer);
 // Delete a specific footballer by id
 router.delete('/footballers/:id', footballerController.deleteFootballer);
 
+router.get('/footballers/search', footballerController.searchFootballers);
+
+router.post('/footballers/:footballerId/addTeam', footballerController.addTeamToFootballer);
+
 module.exports = router;
