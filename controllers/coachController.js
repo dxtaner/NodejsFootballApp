@@ -1,22 +1,14 @@
 const Coach = require('../models/coach');
 const Team = require('../models/team');
 
-exports.getCoaches = (req, res) => {
-  Coach.find()
-    .then(coaches => {
-      res.status(200).json({
-        success: true,
-        message: 'Coaches retrieved successfully',
-        data: coaches
-      });
-    })
-    .catch(error => {
-      res.status(500).json({
-        success: false,
-        message: 'An error occurred while retrieving coaches',
-        error: error.message
-      });
-    });
+exports.getCoaches = async (req, res) => {
+  try {
+    const coaches = await Coach.find();
+    res.status(200).json({ success: true, data: coaches });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, error: 'Server Error' });
+  }
 };
 
 exports.createCoach = async (req, res) => {
@@ -25,6 +17,11 @@ exports.createCoach = async (req, res) => {
     const team = await Team.findById(teamId);
     if (teamId && !team) {
       return res.status(400).json({ error: 'Invalid team ID' });
+    }
+
+    const existingCoach = await Coach.findOne({ email: email });
+    if (existingCoach) {
+      return res.status(409).json({ message: 'This coach already exists' });
     }
     const newCoach = await Coach.create({
       firstName,
@@ -40,6 +37,7 @@ exports.createCoach = async (req, res) => {
       trophies,
       team: team ? team._id : null
     });
+    console.log(team);
     res.status(201).json(newCoach);
   } catch (error) {
     console.error(error);
@@ -79,7 +77,6 @@ exports.updateCoach = (req, res, next) => {
 
 exports.deleteCoach = async (req, res) => {
   const { id } = req.params;
-
   try {
     const deletedCoach = await Coach.findByIdAndDelete(id);
     if (!deletedCoach) {
@@ -90,3 +87,26 @@ exports.deleteCoach = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.addTeamToCoach = async (req, res) => {
+  try {
+    const { teamName } = req.body;
+    const coach = await Coach.findById(req.params.coachId);
+    if (!coach) {
+      return res.status(404).json({ message: 'Coach not found' });
+    }
+    const existingTeam = await Team.findOne({ name: teamName });
+    if (!existingTeam) {
+      return res.status(404).json({ message: 'Team not found' });
+    }
+    if (existingTeam.coach) {
+      return res.status(400).json({ message: 'Team already has a coach' });
+    }
+    existingTeam.coach = coach;
+    await existingTeam.save();
+    res.json({ message: 'Coach added to team successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+}
