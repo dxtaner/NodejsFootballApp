@@ -8,5 +8,6 @@ router.post('/coaches', coachController.createCoach);
 router.get('/coaches/:id', coachController.getCoachById);
 router.put('/coaches/:id', coachController.updateCoach);
 router.delete('/coaches/:id', coachController.deleteCoach);
+router.post('/coaches/:coachId/addTeam', coachController.addTeamToCoach);
 
 module.exports = router;
