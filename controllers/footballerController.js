@@ -12,11 +12,31 @@ exports.getFootballers = async (req, res) => {
 
 exports.createFootballer = async (req, res) => {
     try {
+        const { firstName, lastName, dateOfBirth, teamId } = req.body;
+
+        const existingFootballer = await Footballer.findOne({
+            firstName: firstName,
+            lastName: lastName,
+            dateOfBirth: dateOfBirth
+        });
+
+        if (existingFootballer) {
+            return res.status(400).json({ message: 'Footballer already exists' });
+        }
+
+        let team = null;
+        if (teamId) {
+            team = await Team.findById(teamId);
+            if (!team) {
+                return res.status(400).json({ message: 'Invalid team ID' });
+            }
+        }
+
         const footballer = new Footballer({
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
+            firstName: firstName,
+            lastName: lastName,
             nationality: req.body.nationality,
-            dateOfBirth: req.body.dateOfBirth,
+            dateOfBirth: dateOfBirth,
             height: req.body.height,
             weight: req.body.weight,
             position: req.body.position,
@@ -25,8 +45,9 @@ exports.createFootballer = async (req, res) => {
             address: req.body.address,
             image: req.body.image,
             playingCareer: req.body.playingCareer,
-            team: req.body.team || null
+            team: teamId ? teamId : null
         });
+
         const savedFootballer = await footballer.save();
         res.status(201).json(savedFootballer);
     } catch (err) {
@@ -81,5 +102,43 @@ exports.deleteFootballer = async (req, res, next) => {
         res.status(200).json({ message: 'Footballer deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+exports.searchFootballers = async (req, res) => {
+    try {
+        const { firstName, position } = req.query;
+        const footballers = await Footballer.find({
+            firstName: { $regex: firstName, $options: 'i' },
+            position: { $regex: position, $options: 'i' }
+        }).populate('team');
+        res.json(footballers);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.addTeamToFootballer =  async (req, res) => {
+    try {
+        const { footballerId } = req.params;
+        const { teamName } = req.body;
+        const footballer = await Footballer.findById(req.params.footballerId);
+        if (!footballer) {
+            return res.status(404).json({ message: 'footballer not found' });
+        }
+        const existingTeam = await Team.findOne({ name: teamName });
+        if (!existingTeam) {
+            return res.status(404).json({ message: 'Team not found' });
+        }
+        if (existingTeam.footballer) {
+            return res.status(400).json({ message: 'Team already has a footballer' });
+        }
+        existingTeam.footballer = footballer;
+        await existingTeam.save();
+        res.json({ message: 'footballer added to team successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server Error' });
     }
 };
