@@ -5,6 +5,8 @@ const app = express();
 
 const coachRoutes = require('./routes/coachRoute');
 const footballerRoutes = require('./routes/footballerRoute');
+const stadiumRoutes = require('./routes/stadiumRoutes.js');
+const teamRoutes = require('./routes/teamRoutes.js')
 
 // Import models
 const Coach = require('./models/coach');
@@ -17,7 +19,7 @@ const Team = require('./models/team');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const dbURL = "mongodb+srv://taner16:taner123@cluster0.guofsiq.mongodb.net/test3";
+const dbURL = "mongodb+srv://taner16:taner123@cluster0.guofsiq.mongodb.net/FootballApp";
 mongoose.connect(dbURL
     , { useNewUrlParser: true }).then(() =>
         console.log("DB connect succesfully"))
@@ -30,6 +32,8 @@ mongoose.connect(dbURL
 
 app.use('/coach', coachRoutes);
 app.use('/footballer', footballerRoutes);
+app.use('/stadium', stadiumRoutes);
+app.use('/team', teamRoutes);
 
 // Server
 const port = 3000;
