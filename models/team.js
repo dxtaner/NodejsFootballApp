@@ -12,12 +12,10 @@ const teamSchema = new mongoose.Schema({
   stadium: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Stadium',
-    required: true
   },
   coach: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Coach',
-    required: true
   },
   founded: {
     type: Number,
@@ -33,7 +31,7 @@ const teamSchema = new mongoose.Schema({
   },
   players: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Player'
+    ref: 'Footballer',
   }]
 });
 
