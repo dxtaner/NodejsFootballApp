@@ -1,3 +1,21 @@
+# Football Management System Backend
+
+This repository contains the backend code for a football management system.
+
+## Technologies Used
+
+- Node.js
+- Express
+- MongoDB
+
+## Installation and Setup
+
+1. Clone this repository
+2. Navigate to the root directory of the project in your terminal
+3. Run `npm install` to install the project dependencies
+4. Create a `.env` file in the root directory and set the required environment variables (see `.env.example` for an example)
+5. Run `npm start` to start the server
+
 # Routes
 
 The API has the following routes:
